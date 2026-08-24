@@ -9,7 +9,7 @@ import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 
 export const CommonFooter = () => {
   return (
-    <footer className="bg-[#5A3000] text-white">
+    <footer className="bg-[#800000] text-white">
       {/* Main Footer */}
       <div
         className="
@@ -48,10 +48,10 @@ export const CommonFooter = () => {
                   text-3xl
                   font-bold
                   tracking-wide
-                  text-primary
+                  text-gold-light
                 "
               >
-                AstroAyush
+                Lifesiddhi
               </h2>
 
               <p
@@ -61,7 +61,7 @@ export const CommonFooter = () => {
                   text-[#D9B77A]
                 "
               >
-                Your Spiritual Guide
+                Personal Guidance. Practical Remedies.
               </p>
             </Link>
 
@@ -74,9 +74,7 @@ export const CommonFooter = () => {
                 text-white/85
               "
             >
-              Your trusted online astrology portal
-              providing accurate Vedic astrology
-              predictions and consultations.
+              Personalised Vedic astrology consultations and Lal Kitab remedies to help you find clarity in marriage, career, business, finances and family matters
             </p>
 
             {/* Social Icons */}
@@ -109,6 +107,10 @@ export const CommonFooter = () => {
 
               <FooterLink href="/about">
                 About Us
+              </FooterLink>
+
+              <FooterLink href= "/aboutAyush">
+              About Astrologer Ayush
               </FooterLink>
             </div>
           </div>

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import User from "@/models/User";
-import { Role } from "@/context/UserContext";
+import User, { Role } from "@/models/User";
 import Session from "@/models/Session";
+import bcrypt from "bcrypt";
 
 export interface UserDetails {
   name : string;
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
 
-    const { name, number } = await request.json();
+    const { name, number , password } = await request.json();
 
     if (!name || !number) {
       return NextResponse.json(
@@ -27,10 +27,35 @@ export async function POST(request: NextRequest) {
     // Find or create user
     let user = await User.findOne({number});
 
+    
+
+    let hashedPassword = await bcrypt.hash(password ? password : number , 10);
+
+    console.log("password",password)
+
+    if (
+  user &&
+  Number(user.role) === Role.ADMIN
+) {
+  if (!password) {
+    throw new Error("Password is required");
+  }
+
+  const passwordMatch = await bcrypt.compare(
+    password,
+    user.password
+  );
+
+  if (!passwordMatch) {
+    throw new Error("Unauthorized");
+  }
+}
+    
     if (!user) {
       user = await User.create({
         name,
         number,
+        password : hashedPassword
       });
     }
 
@@ -39,7 +64,7 @@ export async function POST(request: NextRequest) {
     await Session.create({
       sessionId,
       userId: user._id,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + 1 * 24 * 60 * 30 * 1000),
     });
 
     const response = NextResponse.json({
@@ -52,7 +77,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: 1 * 60 * 24 * 30,
     });
 
     return response;
@@ -113,11 +138,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
+
     return NextResponse.json({
       id: user._id.toString(),
       name: user.name,
       number: user.number,
-      role: user.role,
+      role: Number(user.role) === Role.ADMIN ? "ADMIN" : "USER",
     });
   } catch (error) {
     console.error("GET /api/users/me error:", error);

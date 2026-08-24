@@ -12,7 +12,7 @@ export default function RefundAndPolicy() {
           <div className="mt-5 space-y-1 text-label text-text-secondary">
             <p>
               <span className="font-medium text-text">Website:</span>{" "}
-              [Website URL]
+              lifesiddhi.com
             </p>
 
             <p>
@@ -22,7 +22,7 @@ export default function RefundAndPolicy() {
 
             <p>
               <span className="font-medium text-text">Last Updated:</span>{" "}
-              [Date]
+              27/08/2026
             </p>
           </div>
 
@@ -215,7 +215,7 @@ export default function RefundAndPolicy() {
 
               <p>
                 <span className="font-semibold">Phone/WhatsApp:</span>{" "}
-                [Phone Number]
+                +91 79803 14196
               </p>
             </div>
           </section>

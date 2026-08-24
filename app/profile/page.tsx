@@ -8,10 +8,15 @@ import {
   CreditCard,
   Download,
   ChevronRight,
+  Loader,
 } from "lucide-react";
-import { useUser } from "@/context/UserContext";
+import { useUser , type Role } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
+import AdminProfilePage from "@/components/AdminProfile";
+
 
 export default function ProfilePage() {
+  
   const [activeTab, setActiveTab] = useState<"orders" | "transactions">(
     "orders"
   );
@@ -53,6 +58,25 @@ export default function ProfilePage() {
   const data = useUser();
   console.log("user in profile page",data.user)
   const user = data?.user ?? null;
+  const router = useRouter();
+
+  if (data.loading) {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader className="animate-spin" />
+    </div>
+  );
+}
+
+  if(!user && ! data?.loading){
+    router.push("/");
+  }
+
+  if(user && user.role === "ADMIN"  ){
+    return (
+      <AdminProfilePage />
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background text-text">

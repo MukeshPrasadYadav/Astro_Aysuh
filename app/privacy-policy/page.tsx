@@ -12,7 +12,7 @@ export default function PrivacyAndPolicy() {
           <div className="mt-5 space-y-1 text-label text-text-secondary">
             <p>
               <span className="font-medium text-text">Website:</span>{" "}
-              [Website URL]
+              lifesiddhi.com
             </p>
 
             <p>
@@ -22,12 +22,12 @@ export default function PrivacyAndPolicy() {
 
             <p>
               <span className="font-medium text-text">Last Updated:</span>{" "}
-              [Date]
+              17/08/2026
             </p>
           </div>
 
           <p className="text-body mt-6 max-w-4xl text-text-secondary">
-            Astro Ayush, operated by [Legal Business Name] (&quot;we&quot;,
+            Astro Ayush (&quot;we&quot;,
             &quot;our&quot; or &quot;us&quot;), respects your privacy. This
             Privacy Policy explains what information we collect, why we collect
             it and how it is handled when you use our website, purchase a
@@ -296,7 +296,7 @@ export default function PrivacyAndPolicy() {
           </section>
 
           {/* Privacy and Grievance Contact */}
-          <section className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6 md:p-8">
+          <section className="rounded-xl border border-border bg-primary/10 p-5 shadow-sm sm:p-6 md:p-8">
             <h2 className="text-card mb-6 font-semibold">
               Privacy and Grievance Contact
             </h2>
@@ -304,7 +304,7 @@ export default function PrivacyAndPolicy() {
             <div className="text-body space-y-3">
               <p>
                 <span className="font-semibold">Contact Person:</span>{" "}
-                [Full Name]
+                Ayush Mallick
               </p>
 
               <p>
@@ -319,13 +319,10 @@ export default function PrivacyAndPolicy() {
 
               <p>
                 <span className="font-semibold">Phone/WhatsApp:</span>{" "}
-                [Phone Number]
+                +91 79803 14196
               </p>
 
-              <p className="break-words">
-                <span className="font-semibold">Business Address:</span>{" "}
-                [Complete Business Address]
-              </p>
+             
             </div>
           </section>
 

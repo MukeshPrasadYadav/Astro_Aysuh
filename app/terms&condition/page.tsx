@@ -12,7 +12,7 @@ export default function TermsAndConditions() {
           <div className="mt-5 space-y-1 text-label text-text-secondary">
             <p>
               <span className="font-medium text-text">Website:</span>{" "}
-              [Website URL]
+              lifesiddhi.com
             </p>
 
             <p>
@@ -22,7 +22,7 @@ export default function TermsAndConditions() {
 
             <p>
               <span className="font-medium text-text">Last Updated:</span>{" "}
-              [Date]
+              27/08/2026
             </p>
           </div>
 
@@ -345,7 +345,7 @@ export default function TermsAndConditions() {
           </section>
 
           {/* Customer Support */}
-          <section className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6 md:p-8">
+          <section className="rounded-xl border border-border bg-primary/10 p-5 shadow-sm sm:p-6 md:p-8">
             <h2 className="text-card mb-6 font-semibold">
               Customer Support and Grievance Contact
             </h2>
@@ -353,7 +353,7 @@ export default function TermsAndConditions() {
             <div className="text-body space-y-3">
               <p>
                 <span className="font-semibold">Contact Person:</span>{" "}
-                [Full Name]
+                Ayush Mallick
               </p>
 
               <p>
@@ -368,13 +368,10 @@ export default function TermsAndConditions() {
 
               <p>
                 <span className="font-semibold">Phone/WhatsApp:</span>{" "}
-                [Phone Number]
+                +91 79803 14196
               </p>
 
-              <p className="break-words">
-                <span className="font-semibold">Business Address:</span>{" "}
-                [Complete Business Address]
-              </p>
+             
             </div>
 
             <p className="text-label mt-6 border-t border-border pt-5 text-text-secondary">

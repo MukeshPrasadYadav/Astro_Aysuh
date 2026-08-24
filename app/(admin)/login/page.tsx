@@ -4,13 +4,29 @@ import { navigate } from "next/dist/client/components/segment-cache/navigation";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
+import { Loader } from "lucide-react";
 
-export default function Auth() {
+export default function AdminAuth() {
+
+  const data = useUser();
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
+  const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { refreshUser } = useUser();
+   const { refreshUser } = useUser();
+
+if (data.loading) {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader className="animate-spin" />
+    </div>
+  );
+}
+
+if(!data.loading && data.user){
+  router.push("/")
+}
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,6 +47,7 @@ export default function Auth() {
         body: JSON.stringify({
           name,
           number,
+          password
         }),
       });
 
@@ -40,7 +57,6 @@ export default function Auth() {
         throw new Error(data.message || "Something went wrong");
       }
       if(response.ok){
-
          await refreshUser()
         router.push("/")
       }
@@ -108,6 +124,25 @@ export default function Auth() {
               className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
+
+            <div>
+            <label
+              htmlFor="password"
+              className="mb-2 block text-sm font-medium"
+            >
+              Password
+            </label>
+
+            <input
+              id="password"
+              type="tel"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder ="Enter your password"
+              className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+
 
           <button
             type="submit"

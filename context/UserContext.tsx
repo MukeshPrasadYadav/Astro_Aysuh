@@ -22,6 +22,7 @@ interface UserContextType {
   loading: boolean;
   setUser: (user: User) => void;
   clearUser: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -30,34 +31,33 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch("/api/users", {
-          method: "GET",
-          credentials: "include",
-        });
+  const refreshUser = async () => {
+    try {
+      setLoading(true);
 
-        const data = await response.json();
+      const response = await fetch("/api/users", {
+        method: "GET",
+        credentials: "include",
+      });
 
-        if (!response.ok) {
-          setUser(null);
-          return;
-        }
+      const data = await response.json();
 
-        console.log("User:", data);
-
-        // Set the user returned by the API
-        setUser(data);
-      } catch (error) {
-        console.error("Failed to get user:", error);
+      if (!response.ok) {
         setUser(null);
-      } finally {
-        setLoading(false);
+        return;
       }
-    };
 
-    getUser();
+      setUser(data);
+    } catch (error) {
+      console.error("Failed to get user:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshUser();
   }, []);
 
   const clearUser = () => {
@@ -71,6 +71,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         loading,
         setUser,
         clearUser,
+        refreshUser,
       }}
     >
       {children}
