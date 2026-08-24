@@ -2,16 +2,20 @@
 import { FaWhatsapp } from "react-icons/fa";
 
 import { usePathname } from "next/navigation";
+import { useUser , type Role } from "@/context/UserContext";
 
 
 
 export default function WhatsAppButton() {
 
+  const data = useUser();
+  const user = data.user ?? null;
+
   const pathname = usePathname();
 
   const hiddenPaths = ["/auth", "/admin"];
 
-  if (hiddenPaths.some((path) => pathname.startsWith(path))) {
+  if ( user?.role === "ADMIN"  || hiddenPaths.some((path) => pathname.startsWith(path))) {
     return null;
   }
 

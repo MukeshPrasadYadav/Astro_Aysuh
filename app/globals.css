@@ -9,10 +9,13 @@
   --color-primary-dark: #d46116;
   --color-primary-light: #f29a52;
 
-  --color-gold: #c89b3c;
-  --color-gold-light: #e1c27a;
+  --color-button-primary : #ff6a04;
 
-  --color-background: #faf7f2;
+  --color-gold: #c89b3c;
+  --color-gold-light: #ff6a04;
+  --color-link-button :#ff6a04;
+
+  --color-background: #fff8e8;
   --color-background-soft: #f5efe6;
   --color-background-muted: #eee6da;
 
@@ -25,6 +28,8 @@
   --color-text-secondary: #756e67;
   --color-text-muted: #9a9289;
   --color-text-inverse: #ffffff;
+
+  --color-text-meta : #ff6a04;
 
   --color-border: #e8ded2;
   --color-border-light: #f0e9df;

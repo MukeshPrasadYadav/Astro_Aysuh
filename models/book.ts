@@ -4,6 +4,8 @@ export interface IBook extends Document {
   name: string;
   price : number;
   priceToShow : number;
+  coverImage : string;
+  pdfPublicId : string;
 }
 
 const BookSchema = new Schema<IBook>(
@@ -23,6 +25,14 @@ const BookSchema = new Schema<IBook>(
         type : Number,
         required : true,
         min : 0
+    },
+    coverImage :{
+      type : String,
+      required : true
+    },
+    pdfPublicId :{
+      type : String,
+      required : true
     }
   },
   {

@@ -1,7 +1,6 @@
 "use client"
 import Link from "next/link";
 import { Home, BookOpen, UserRound, UserPlus } from "lucide-react";
-import Logo from "../public/Logo.svg"
 import Image from "next/image";
 import { useUser } from "@/context/UserContext";
 

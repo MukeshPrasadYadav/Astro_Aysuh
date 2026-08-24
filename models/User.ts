@@ -1,14 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-
 export enum Role {
-    "USER",
-    "ADMIN"
+  USER = 0,
+  ADMIN = 1,
 }
+
 export interface IUser extends Document {
   name: string;
   number: string;
-  role : string;
+  password: string;
+  role: Role;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -22,17 +23,22 @@ const UserSchema = new Schema<IUser>(
     number: {
       type: String,
       required: true,
-      maxLength : 10,
-      minLength : 10 ,
+      maxLength: 10,
+      minLength: 10,
       unique: true,
       trim: true,
     },
-    role: {
-  type: String,
-  enum: Object.values(Role),
-  default: Role.USER,
-}
 
+    password: {
+      type: String,
+      required: true,
+    },
+
+    role: {
+      type: Number,
+      enum: [Role.USER, Role.ADMIN],
+      default: Role.USER,
+    },
   },
   {
     timestamps: true,
