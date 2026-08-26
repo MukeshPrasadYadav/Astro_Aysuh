@@ -147,7 +147,7 @@ if(!data.loading && data.user){
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+            className="w-full rounded-lg bg-text-meta py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
           >
             {loading ? "Please wait..." : "Continue"}
           </button>

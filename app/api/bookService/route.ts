@@ -1,65 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
-// import connectDB from "@/lib/mongodb";
-// import Book from "@/models/Book";
-// import { uploadToCloudinary } from "@/lib/cloudinary";
+
 import { connectDB } from "@/lib/db";
 import Book from "@/models/book";
-import { uploadToCloudinary } from "@/lib/uploadCloudinary";
-import { testCloudinary } from "@/lib/cloudinary";
-
 
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-   
 
-    const formData = await req.formData();
+    // Read JSON instead of FormData
+    const body = await req.json();
 
-const name = formData.get("name") as string;
-const price = Number(formData.get("price"));
-const priceToShow = Number(formData.get("priceToShow"));
+    const {
+      name,
+      price,
+      priceToShow,
+      coverPicture,
+      coverPicturePath,
+      pdfPath,
+    } = body;
 
-const coverPicture = formData.get("coverPicture") as File;
-const pdf = formData.get("pdf") as File;
-
-    if (!name || !price || !priceToShow || !coverPicture || !pdf) {
+    // Validation
+    if (
+      !name ||
+      !price ||
+      !priceToShow ||
+      !coverPicture ||
+      !coverPicturePath ||
+      !pdfPath
+    ) {
       return NextResponse.json(
-        { message: "All fields are required" },
+        {
+          message: "All fields are required",
+        },
         { status: 400 }
       );
     }
 
-    console.log("price",price);
-    console.log("priceTo show",priceToShow);
-    console.log("cover picture",coverPicture)
-    console.log("pdf",pdf)
-    console.log("name",name)
+    console.log("name:", name);
+    console.log("price:", price);
+    console.log("priceToShow:", priceToShow);
+    console.log("coverPicture:", coverPicture);
+    console.log("coverPicturePath:", coverPicturePath);
+    console.log("pdfPath:", pdfPath);
 
-    // Upload cover
-     await testCloudinary();
-
-    
-    const coverUrl = await uploadToCloudinary(
-      coverPicture,
-      "books/covers"
-    );
-
-    console.log("coverUrl",coverUrl)
-
-    // Upload PDF
-    // const pdfUrl = await uploadToCloudinary(
-    //   pdf,
-    //   "books/pdfs"
-    // );
-    // console.log("pdfUrl",pdfUrl)
-
-    // Save in DB
+    // Save only the URLs/paths in MongoDB
     const book = await Book.create({
       name,
       price: Number(price),
       priceToShow: Number(priceToShow),
-      coverPicture: coverUrl,
-      pdf: pdfUrl,
+      coverImage : coverPicturePath,
+      pdfPublicId : pdfPath
     });
 
     return NextResponse.json(
@@ -69,12 +59,13 @@ const pdf = formData.get("pdf") as File;
       },
       { status: 201 }
     );
-
   } catch (error) {
-    console.error(error);
+    console.error("Book API error:", error);
 
     return NextResponse.json(
-      { message: "Failed to upload book" },
+      {
+        message: "Failed to upload book",
+      },
       { status: 500 }
     );
   }

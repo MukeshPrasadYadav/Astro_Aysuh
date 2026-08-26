@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { supabase } from "@/lib/superbaseconfig";
 import Button from "./Button";
 
 export interface BookUploaderProps {
@@ -24,7 +25,10 @@ export default function BookUploader({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // -------------------------
     // Validation
+    // -------------------------
+
     if (!name.trim()) {
       alert("Please enter your book name");
       return;
@@ -48,53 +52,160 @@ export default function BookUploader({
       return;
     }
 
-    // Validate cover
     if (!coverPicture.type.startsWith("image/")) {
       alert("Please upload a valid image");
       return;
     }
 
-    // Validate PDF
     if (pdf.type !== "application/pdf") {
       alert("Please upload a valid PDF");
+      return;
+    }
+
+    // Optional file size validation
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
+    const MAX_PDF_SIZE = 500 * 1024 * 1024; // 500 MB
+
+    if (coverPicture.size > MAX_IMAGE_SIZE) {
+      alert("Cover image must be smaller than 10 MB");
+      return;
+    }
+
+    if (pdf.size > MAX_PDF_SIZE) {
+      alert("PDF must be smaller than 500 MB");
       return;
     }
 
     try {
       setLoading(true);
 
-      // Create FormData
-      const formData = new FormData();
+    
+      const timestamp = Date.now();
 
-      formData.append("name", name.trim());
-      formData.append("price", price);
-      formData.append("priceToShow", priceToShow);
-      formData.append("coverPicture", coverPicture);
-      formData.append("pdf", pdf);
+      const imageExtension =
+        coverPicture.name.split(".").pop()?.toLowerCase() || "jpg";
+
+      const pdfExtension = "pdf";
+
+      const imagePath = `books/${timestamp}-${crypto.randomUUID()}.${imageExtension}`;
+
+      const pdfPath = `books/${timestamp}-${crypto.randomUUID()}.${pdfExtension}`;
+
+      // --------------------------------
+      // Upload cover image
+      // --------------------------------
+
+      const { error: imageError } = await supabase.storage
+        .from("Images")
+        .upload(imagePath, coverPicture, {
+          contentType: coverPicture.type,
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+
+      if (imageError) {
+        console.log("upload error",imageError)
+        throw new Error(
+          `Cover image upload failed: ${imageError.message}`
+        );
+      }
+
+      console.log("Image uploaded:", imagePath);
+
+      // --------------------------------
+      // Upload PDF
+      // --------------------------------
+
+      const { error: pdfError } = await supabase.storage
+        .from("pdf")
+        .upload(pdfPath, pdf, {
+          contentType: "application/pdf",
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (pdfError) {
+        // If PDF fails, remove the image we already uploaded
+        await supabase.storage
+          .from("images")
+          .remove([imagePath]);
+
+        throw new Error(
+          `PDF upload failed: ${pdfError.message}`
+        );
+      }
+
+      console.log("PDF uploaded:", pdfPath);
+
+      // --------------------------------
+      // Get public URL for cover image
+      // --------------------------------
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage
+        .from("images")
+        .getPublicUrl(imagePath);
+
+      // --------------------------------
+      // Save book information
+      // --------------------------------
 
       const response = await fetch("/api/bookService", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          price: priceNumber,
+          priceToShow: priceToShowNumber,
+
+          // Public image URL
+          coverPicture: publicUrl,
+
+          // Storage path of private PDF
+          pdfPath: pdfPath,
+
+          // Optional: also store image path
+          coverPicturePath: imagePath,
+        }),
       });
 
       const data = await response.json();
 
+      console.log("data after uplaod",data)
+
       if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
+        // If database insertion fails, clean up uploaded files
+        await supabase.storage
+          .from("images")
+          .remove([imagePath]);
+
+        await supabase.storage
+          .from("pdfs")
+          .remove([pdfPath]);
+
+        throw new Error(
+          data.message || "Failed to save book information"
+        );
       }
 
-      console.log("Book uploaded successfully:", data);
+      console.log("Book created:", data);
 
       alert("Book uploaded successfully!");
 
+      // --------------------------------
       // Reset form
+      // --------------------------------
+
       setName("");
       setPrice("");
       setPriceToShow("");
       setCoverPicture(null);
       setPdf(null);
 
-      // Close modal
       onClose();
     } catch (error) {
       console.error("Book upload failed:", error);

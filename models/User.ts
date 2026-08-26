@@ -10,6 +10,8 @@ export interface IUser extends Document {
   number: string;
   password: string;
   role: Role;
+  books : string[]
+  transactions : string[]
 }
 
 const UserSchema = new Schema<IUser>(
@@ -39,6 +41,14 @@ const UserSchema = new Schema<IUser>(
       enum: [Role.USER, Role.ADMIN],
       default: Role.USER,
     },
+    books: {
+  type: [String],
+  default: [],
+  },
+  transactions :{
+    type : [String],
+    default : []
+  }
   },
   {
     timestamps: true,

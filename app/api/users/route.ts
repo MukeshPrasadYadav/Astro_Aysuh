@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
 
     // Find user
     const user = await User.findById(session.userId).select(
-      "_id name number role"
+      "_id name number role books transactions "
     );
 
     if (!user) {
@@ -144,6 +144,8 @@ export async function GET(request: NextRequest) {
       name: user.name,
       number: user.number,
       role: Number(user.role) === Role.ADMIN ? "ADMIN" : "USER",
+      books : user.books,
+      transactions : user.transactions
     });
   } catch (error) {
     console.error("GET /api/users/me error:", error);
