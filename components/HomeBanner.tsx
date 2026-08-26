@@ -39,7 +39,7 @@ export default function HomeBanner() {
 
             {/* Button */}
             <Link
-              href="#explore"
+              href= "/book/6a8f268a587f6c060c2b0f2b"
               className="inline-block bg-link-button hover:bg-orange-600 text-white font-semibold px-8 py-3.5 rounded-lg transition-all shadow-md hover:shadow-lg"
             >
               Explore Lal Kitab Remedies

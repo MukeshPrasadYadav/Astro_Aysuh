@@ -15,6 +15,9 @@ export interface User {
   name: string;
   number: string;
   role: Role;
+  books : String[];
+  transactions : string[]
+
 }
 
 interface UserContextType {
