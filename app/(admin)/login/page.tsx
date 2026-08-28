@@ -61,10 +61,7 @@ if(!data.loading && data.user){
         router.push("/")
       }
 
-      console.log("Success:", data);
 
-      // Example:
-      // router.push("/profile");
 
     } catch (error) {
       console.error("Login failed:", error);

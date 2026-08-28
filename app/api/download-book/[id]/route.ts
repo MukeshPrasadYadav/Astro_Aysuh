@@ -52,11 +52,11 @@ export async function GET(
       );
     }
 
-    console.log("Book",book)
+
 
     // This should be the path stored in Supabase
     const pdfPath = book.pdfPublicId;
-    console.log("pdfPath",pdfPath)
+  
 
     if (!pdfPath) {
       return NextResponse.json(

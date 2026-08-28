@@ -13,12 +13,52 @@ import {
   CheckCircle,
   XCircle,
   Loader,
+  Search,
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
 import BookUploader from "./BookUploader";
 
 type Tab = "books" | "statistics";
+
+interface Book {
+  name: string;
+  price: number;
+  id: string;
+}
+
+export interface Transaction {
+  paymentStatus: string;
+  orderId: string;
+  transactionId: string | null;
+  name: string;
+  number: string;
+  bookTitle: string;
+  date: string;
+  amount: number;
+}
+
+interface stats {
+  totalSales: number;
+  totalSuccessfulTransaction: number;
+  totalFailedTransaction: number;
+  totalTransaction: number;
+  totalUser: number;
+  books: Book[];
+  transactions: Transaction[];
+}
+
+const formatDate = (date: string) => {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  }).format(new Date(date));
+};
 
 export default function AdminProfilePage() {
   const { user, loading } = useUser();
@@ -27,10 +67,23 @@ export default function AdminProfilePage() {
   const [activeTab, setActiveTab] = useState<Tab>("books");
   const [openUploader, setOpenUploader] = useState(false);
 
+  const [stats, setStats] = useState<stats>({
+    totalSales: 0,
+    totalSuccessfulTransaction: 0,
+    totalFailedTransaction: 0,
+    totalTransaction: 0,
+    totalUser: 0,
+    books: [],
+    transactions: [],
+  });
 
   const [transactionFilter, setTransactionFilter] = useState<
     "all" | "success" | "failed"
   >("all");
+
+  const [transactionSearch, setTransactionSearch] = useState("");
+  const [transactionsPerPage, setTransactionsPerPage] = useState(10);
+  const [transactionPage, setTransactionPage] = useState(1);
 
   // Protect admin page
   useEffect(() => {
@@ -58,67 +111,73 @@ export default function AdminProfilePage() {
     return null;
   }
 
-  // Temporary data - replace with API data later
-  const books = [
-    {
-      id: "BOOK-001",
-      name: "Lal Kitab Remedies",
-      price: 499,
-      status: "Active",
-    },
-    {
-      id: "BOOK-002",
-      name: "Vedic Astrology Guide",
-      price: 299,
-      status: "Active",
-    },
-    {
-      id: "BOOK-003",
-      name: "Astrology Fundamentals",
-      price: 599,
-      status: "Active",
-    },
-  ];
+  useEffect(() => {
+    if (!user?.id) return;
 
-  const transactions = [
-    {
-      id: "TXN-1001",
-      user: "Rahul Sharma",
-      amount: 499,
-      date: "22 Aug 2026",
-      status: "Successful",
-    },
-    {
-      id: "TXN-1002",
-      user: "Amit Kumar",
-      amount: 299,
-      date: "22 Aug 2026",
-      status: "Successful",
-    },
-    {
-      id: "TXN-1003",
-      user: "Priya Singh",
-      amount: 599,
-      date: "21 Aug 2026",
-      status: "Failed",
-    },
-    {
-      id: "TXN-1004",
-      user: "Rohit Das",
-      amount: 499,
-      date: "20 Aug 2026",
-      status: "Successful",
-    },
-  ];
+    const getStats = async () => {
+      try {
+        const res = await fetch("/api/admin/stats", {
+          method: "GET",
+          headers: {
+            "x-user-id": user.id.toString(),
+          },
+        });
 
-  const filteredTransactions =
-    transactionFilter === "all"
-      ? transactions
-      : transactions.filter((transaction) =>
-          transactionFilter === "success"
-            ? transaction.status === "Successful"
-            : transaction.status === "Failed"
-        );
+        if (!res.ok) {
+          throw new Error("Failed to fetch admin stats");
+        }
+
+        const { data } = await res.json();
+
+        setStats({
+          totalSales: data.totalSales,
+          totalSuccessfulTransaction: data.totalSuccessfulTransaction,
+          totalFailedTransaction: data.totalFailedTransaction,
+          totalTransaction: data.totalTransaction,
+          totalUser: data.totalUser,
+          books: data.books,
+          transactions: data.transactions,
+        });
+      } catch (error) {
+        console.error("Failed to fetch admin stats:", error);
+        alert("Something went wrong.");
+      }
+    };
+
+    getStats();
+  }, [user?.id]);
+
+  const transactions = stats?.transactions ?? [];
+
+  const filteredTransactions = transactions
+    .filter((transaction) => {
+      if (transactionFilter === "all") return true;
+
+      return transactionFilter === "success"
+        ? transaction.paymentStatus === "paid"
+        : transaction.paymentStatus !== "paid";
+    })
+    .filter((transaction) => {
+      const search = transactionSearch.toLowerCase().trim();
+
+      if (!search) return true;
+
+      return (
+        transaction.name.toLowerCase().includes(search) ||
+        transaction.number.toLowerCase().includes(search) ||
+        transaction.orderId.toLowerCase().includes(search) ||
+        transaction.bookTitle.toLowerCase().includes(search)
+      );
+    });
+
+  const totalTransactionPages = Math.ceil(
+    filteredTransactions.length / transactionsPerPage
+  );
+
+  const paginatedTransactions = filteredTransactions.slice(
+    (transactionPage - 1) * transactionsPerPage,
+    transactionPage * transactionsPerPage
+  );
 
   return (
     <main className="min-h-screen bg-background text-text">
@@ -141,7 +200,10 @@ export default function AdminProfilePage() {
 
             {/* Avatar */}
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-background-soft text-primary">
-              <UserRound size={38} strokeWidth={1.7} />
+              <UserRound
+                className="h-7 w-7 sm:h-[38px] sm:w-[38px]"
+                strokeWidth={1.7}
+              />
             </div>
 
             {/* User Info */}
@@ -223,7 +285,7 @@ export default function AdminProfilePage() {
 
                   {/* Upload */}
                   <button
-                  onClick={() => setOpenUploader(true)}
+                    onClick={() => setOpenUploader(true)}
                     className="group rounded-xl border border-border bg-background p-5 text-left transition hover:border-primary hover:shadow-sm"
                   >
                     <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-background-soft text-primary">
@@ -239,8 +301,6 @@ export default function AdminProfilePage() {
                     </p>
                   </button>
 
-                  
-
                   {/* Total Books */}
                   <div className="rounded-xl border border-border bg-background p-5">
                     <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-background-soft text-primary">
@@ -248,7 +308,7 @@ export default function AdminProfilePage() {
                     </div>
 
                     <p className="text-section font-bold">
-                      {books.length}
+                      {stats.books?.length ?? 0}
                     </p>
 
                     <p className="text-label mt-1 text-text-secondary">
@@ -273,7 +333,7 @@ export default function AdminProfilePage() {
 
                   <div className="divide-y divide-border">
 
-                    {books.map((book) => (
+                    {stats.books.map((book) => (
                       <div
                         key={book.id}
                         className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
@@ -305,17 +365,9 @@ export default function AdminProfilePage() {
                             </p>
 
                             <span className="text-label text-primary">
-                              {book.status}
+                              Active
                             </span>
                           </div>
-
-                          <button
-                            className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-secondary transition hover:border-primary hover:text-primary"
-                            aria-label={`Edit ${book.name}`}
-                          >
-                            <Pencil size={17} />
-                          </button>
-
                         </div>
 
                       </div>
@@ -340,6 +392,7 @@ export default function AdminProfilePage() {
                   {/* Total Users */}
                   <div className="rounded-xl border border-border bg-background p-5">
                     <div className="mb-4 flex items-center justify-between">
+
                       <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-background-soft text-primary">
                         <Users size={22} />
                       </div>
@@ -347,10 +400,11 @@ export default function AdminProfilePage() {
                       <span className="text-label text-text-muted">
                         Users
                       </span>
+
                     </div>
 
                     <p className="text-section font-bold">
-                      1,248
+                      {stats.totalUser}
                     </p>
 
                     <p className="text-label mt-1 text-text-secondary">
@@ -361,6 +415,7 @@ export default function AdminProfilePage() {
                   {/* Total Sales */}
                   <div className="rounded-xl border border-border bg-background p-5">
                     <div className="mb-4 flex items-center justify-between">
+
                       <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-background-soft text-primary">
                         <IndianRupee size={22} />
                       </div>
@@ -368,10 +423,11 @@ export default function AdminProfilePage() {
                       <span className="text-label text-text-muted">
                         Sales
                       </span>
+
                     </div>
 
                     <p className="text-section font-bold">
-                      ₹1,48,500
+                      ₹{stats.totalSales}
                     </p>
 
                     <p className="text-label mt-1 text-text-secondary">
@@ -382,6 +438,7 @@ export default function AdminProfilePage() {
                   {/* Total Transactions */}
                   <div className="rounded-xl border border-border bg-background p-5">
                     <div className="mb-4 flex items-center justify-between">
+
                       <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-background-soft text-primary">
                         <CreditCard size={22} />
                       </div>
@@ -389,10 +446,11 @@ export default function AdminProfilePage() {
                       <span className="text-label text-text-muted">
                         Transactions
                       </span>
+
                     </div>
 
                     <p className="text-section font-bold">
-                      1,420
+                      {stats.totalTransaction}
                     </p>
 
                     <p className="text-label mt-1 text-text-secondary">
@@ -403,6 +461,7 @@ export default function AdminProfilePage() {
                   {/* Successful */}
                   <div className="rounded-xl border border-border bg-background p-5">
                     <div className="mb-4 flex items-center justify-between">
+
                       <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-background-soft text-primary">
                         <CheckCircle size={22} />
                       </div>
@@ -410,10 +469,11 @@ export default function AdminProfilePage() {
                       <span className="text-label text-text-muted">
                         Successful
                       </span>
+
                     </div>
 
                     <p className="text-section font-bold">
-                      1,367
+                      {stats.totalSuccessfulTransaction ?? 0}
                     </p>
 
                     <p className="text-label mt-1 text-text-secondary">
@@ -424,6 +484,7 @@ export default function AdminProfilePage() {
                   {/* Failed */}
                   <div className="rounded-xl border border-border bg-background p-5">
                     <div className="mb-4 flex items-center justify-between">
+
                       <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-background-soft text-primary">
                         <XCircle size={22} />
                       </div>
@@ -431,10 +492,11 @@ export default function AdminProfilePage() {
                       <span className="text-label text-text-muted">
                         Failed
                       </span>
+
                     </div>
 
                     <p className="text-section font-bold">
-                      53
+                      {stats.totalFailedTransaction}
                     </p>
 
                     <p className="text-label mt-1 text-text-secondary">
@@ -460,11 +522,34 @@ export default function AdminProfilePage() {
                       </p>
                     </div>
 
+                    <div className="relative w-full sm:max-w-xs">
+
+                      <Search
+                        size={17}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+                      />
+
+                      <input
+                        type="text"
+                        value={transactionSearch}
+                        onChange={(e) => {
+                          setTransactionSearch(e.target.value);
+                          setTransactionPage(1);
+                        }}
+                        placeholder="Search transactions..."
+                        className="h-10 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none transition focus:border-primary"
+                      />
+
+                    </div>
+
                     {/* Filters */}
-                    <div className="flex rounded-lg border border-border p-1">
+                    <div className="flex w-fit rounded-lg border border-border p-1">
 
                       <button
-                        onClick={() => setTransactionFilter("all")}
+                        onClick={() => {
+                          setTransactionFilter("all");
+                          setTransactionPage(1);
+                        }}
                         className={`rounded-md px-3 py-1.5 text-xs font-medium ${
                           transactionFilter === "all"
                             ? "bg-background-soft text-primary"
@@ -475,7 +560,10 @@ export default function AdminProfilePage() {
                       </button>
 
                       <button
-                        onClick={() => setTransactionFilter("success")}
+                        onClick={() => {
+                          setTransactionFilter("success");
+                          setTransactionPage(1);
+                        }}
                         className={`rounded-md px-3 py-1.5 text-xs font-medium ${
                           transactionFilter === "success"
                             ? "bg-background-soft text-primary"
@@ -486,7 +574,10 @@ export default function AdminProfilePage() {
                       </button>
 
                       <button
-                        onClick={() => setTransactionFilter("failed")}
+                        onClick={() => {
+                          setTransactionFilter("failed");
+                          setTransactionPage(1);
+                        }}
                         className={`rounded-md px-3 py-1.5 text-xs font-medium ${
                           transactionFilter === "failed"
                             ? "bg-background-soft text-primary"
@@ -499,68 +590,186 @@ export default function AdminProfilePage() {
                     </div>
                   </div>
 
-                  {/* Transaction List */}
-                  <div className="divide-y divide-border">
+                  {/* Transaction Table */}
+                  <div className="overflow-x-auto">
 
-                    {filteredTransactions.map((transaction) => (
-                      <div
-                        key={transaction.id}
-                        className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
-                      >
+                    <table className="w-full min-w-[900px] text-left">
 
-                        <div className="flex min-w-0 items-center gap-3">
+                      <thead className="border-b border-border bg-background">
+                        <tr>
 
-                          <div
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
-                              transaction.status === "Successful"
-                                ? "bg-background-soft text-primary"
-                                : "bg-background-soft text-text-secondary"
-                            }`}
-                          >
-                            {transaction.status === "Successful" ? (
-                              <CheckCircle size={19} />
-                            ) : (
-                              <XCircle size={19} />
-                            )}
-                          </div>
+                          <th className="px-5 py-4 text-label font-semibold text-text-secondary">
+                            Customer
+                          </th>
 
-                          <div className="min-w-0">
+                          <th className="px-5 py-4 text-label font-semibold text-text-secondary">
+                            Book
+                          </th>
 
-                            <h3 className="text-label font-semibold">
-                              {transaction.id}
-                            </h3>
+                          <th className="px-5 py-4 text-label font-semibold text-text-secondary">
+                            Order ID
+                          </th>
 
-                            <p className="text-label mt-1 text-text-muted">
-                              {transaction.user} · {transaction.date}
-                            </p>
+                          <th className="px-5 py-4 text-label font-semibold text-text-secondary">
+                            Amount
+                          </th>
 
-                          </div>
+                          <th className="px-5 py-4 text-label font-semibold text-text-secondary">
+                            Status
+                          </th>
 
-                        </div>
+                          <th className="px-5 py-4 text-label font-semibold text-text-secondary">
+                            Date
+                          </th>
 
-                        <div className="flex items-center justify-between gap-5 sm:justify-end">
+                        </tr>
+                      </thead>
 
-                          <div className="text-left sm:text-right">
-                            <p className="text-card font-semibold">
-                              ₹{transaction.amount}
-                            </p>
+                      <tbody className="divide-y divide-border">
 
-                            <span
-                              className={`text-label ${
-                                transaction.status === "Successful"
-                                  ? "text-primary"
-                                  : "text-text-secondary"
-                              }`}
+                        {paginatedTransactions.length > 0 ? (
+                          paginatedTransactions.map((transaction) => (
+                            <tr
+                              key={transaction.orderId}
+                              className="transition-colors hover:bg-background-soft/50"
                             >
-                              {transaction.status}
-                            </span>
-                          </div>
 
-                        </div>
+                              {/* Customer */}
+                              <td className="px-5 py-4">
+                                <div>
+                                  <p className="text-label font-semibold">
+                                    {transaction.name}
+                                  </p>
+
+                                  <p className="mt-1 text-xs text-text-muted">
+                                    {transaction.number}
+                                  </p>
+                                </div>
+                              </td>
+
+                              {/* Book */}
+                              <td className="px-5 py-4">
+                                <p className="max-w-[180px] truncate text-label">
+                                  {transaction.bookTitle}
+                                </p>
+                              </td>
+
+                              {/* Order ID */}
+                              <td className="px-5 py-4">
+                                <p className="font-mono text-xs text-text-secondary">
+                                  {transaction.orderId}
+                                </p>
+                              </td>
+
+                              {/* Amount */}
+                              <td className="px-5 py-4">
+                                <p className="text-label font-semibold">
+                                  ₹{transaction.amount}
+                                </p>
+                              </td>
+
+                              {/* Status */}
+                              <td className="px-5 py-4">
+
+                                <span
+                                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                                    transaction.paymentStatus === "paid"
+                                      ? "bg-primary/10 text-primary"
+                                      : "bg-background-soft text-text-secondary"
+                                  }`}
+                                >
+
+                                  {transaction.paymentStatus === "paid" ? (
+                                    <CheckCircle size={14} />
+                                  ) : (
+                                    <XCircle size={14} />
+                                  )}
+
+                                  {transaction.paymentStatus}
+
+                                </span>
+
+                              </td>
+
+                              {/* Date */}
+                              <td className="px-5 py-4">
+                                <p className="whitespace-nowrap text-xs text-text-secondary">
+                                  {formatDate(transaction.date)}
+                                </p>
+                              </td>
+
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td
+                              colSpan={6}
+                              className="px-5 py-12 text-center text-sm text-text-muted"
+                            >
+                              No transactions found.
+                            </td>
+                          </tr>
+                        )}
+
+                      </tbody>
+                    </table>
+
+                  </div>
+
+                  {/* Search + Pagination */}
+                  <div className="flex flex-col gap-4 border-t border-border p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+
+                    
+                    
+
+                    {/* Pagination */}
+                    <div className="flex flex-wrap items-center gap-3">
+
+                      {/* Rows per page */}
+                      <div className="flex items-center gap-2">
+
+                        <span className="text-xs text-text-secondary">
+                          Show
+                        </span>
+
+                        <select
+                          value={transactionsPerPage}
+                          onChange={(e) => {
+                            setTransactionsPerPage(Number(e.target.value));
+                            setTransactionPage(1);
+                          }}
+                          className="h-9 rounded-md border border-border bg-background px-2 text-sm outline-none focus:border-primary"
+                        >
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                        </select>
 
                       </div>
-                    ))}
 
+                      {/* Page numbers */}
+                      <div className="flex items-center gap-1">
+
+                        {Array.from(
+                          { length: totalTransactionPages },
+                          (_, index) => index + 1
+                        ).map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => setTransactionPage(page)}
+                            className={`flex h-9 min-w-9 items-center justify-center rounded-md px-2 text-sm transition ${
+                              transactionPage === page
+                                ? "bg-primary text-white"
+                                : "border border-border text-text-secondary hover:bg-background-soft"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+
+                      </div>
+
+                    </div>
                   </div>
 
                 </div>
@@ -571,10 +780,10 @@ export default function AdminProfilePage() {
           </div>
         </section>
       </div>
+
       <BookUploader
         open={openUploader}
         onClose={() => setOpenUploader(false)}
-        
       />
     </main>
   );

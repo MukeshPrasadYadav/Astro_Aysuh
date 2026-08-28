@@ -105,13 +105,12 @@ export default function BookUploader({
 
 
       if (imageError) {
-        console.log("upload error",imageError)
         throw new Error(
           `Cover image upload failed: ${imageError.message}`
         );
       }
 
-      console.log("Image uploaded:", imagePath);
+   
 
       // --------------------------------
       // Upload PDF
@@ -136,7 +135,7 @@ export default function BookUploader({
         );
       }
 
-      console.log("PDF uploaded:", pdfPath);
+
 
       // --------------------------------
       // Get public URL for cover image
@@ -175,7 +174,7 @@ export default function BookUploader({
 
       const data = await response.json();
 
-      console.log("data after uplaod",data)
+ 
 
       if (!response.ok) {
         // If database insertion fails, clean up uploaded files
@@ -192,7 +191,7 @@ export default function BookUploader({
         );
       }
 
-      console.log("Book created:", data);
+   
 
       alert("Book uploaded successfully!");
 

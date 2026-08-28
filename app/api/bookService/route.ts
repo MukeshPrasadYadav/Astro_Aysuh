@@ -36,12 +36,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("name:", name);
-    console.log("price:", price);
-    console.log("priceToShow:", priceToShow);
-    console.log("coverPicture:", coverPicture);
-    console.log("coverPicturePath:", coverPicturePath);
-    console.log("pdfPath:", pdfPath);
+ ;
 
     // Save only the URLs/paths in MongoDB
     const book = await Book.create({

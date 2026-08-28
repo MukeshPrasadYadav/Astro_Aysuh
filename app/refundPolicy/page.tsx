@@ -210,7 +210,7 @@ export default function RefundAndPolicy() {
             <div className="text-body space-y-3">
               <p className="break-words">
                 <span className="font-semibold">Email:</span>{" "}
-                [Email Address]
+                fininterestam581@gmail.com
               </p>
 
               <p>

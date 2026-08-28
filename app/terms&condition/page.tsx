@@ -363,7 +363,7 @@ export default function TermsAndConditions() {
 
               <p className="break-words">
                 <span className="font-semibold">Email:</span>{" "}
-                [Email Address]
+                fininterestam581@gmail.com
               </p>
 
               <p>

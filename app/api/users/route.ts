@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     let hashedPassword = await bcrypt.hash(password ? password : number , 10);
 
-    console.log("password",password)
+
 
     if (
   user &&

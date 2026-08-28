@@ -22,7 +22,7 @@ export default function PrivacyAndPolicy() {
 
             <p>
               <span className="font-medium text-text">Last Updated:</span>{" "}
-              17/08/2026
+              27/08/2026
             </p>
           </div>
 
@@ -314,7 +314,7 @@ export default function PrivacyAndPolicy() {
 
               <p className="break-words">
                 <span className="font-semibold">Email:</span>{" "}
-                [Email Address]
+                fininterestam581@gmail.com
               </p>
 
               <p>
