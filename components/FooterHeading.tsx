@@ -1,11 +1,13 @@
-export const FooterHeading = ({ children  }) => {
+import { ReactNode } from "react";
+
+export const FooterHeading = ({ children   } : {  children: ReactNode}) => {
   return (
     <div>
       <h3
         className="
           text-base
           font-bold
-          text-gold-light
+          text-[#D9B77A]
         "
       >
         {children}

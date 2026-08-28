@@ -8,7 +8,7 @@ export default function NormalHeader() {
   const data = useUser();
   const user = data?.user ?? null;
 
-  console.log("user in header",user)
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-white">
       <div className="mx-auto flex h-20 items-center justify-between px-6">
@@ -18,13 +18,14 @@ export default function NormalHeader() {
           href="/"
           className="font-bold text-xl text-text"
         >
-          <Image
-    src="/Logo.svg"
-    alt="Logo"
-    width={200}
-    height={80}
-    priority
-  />
+      <Image
+  src="/Logo.svg"
+  alt="Logo"
+  width={200}
+  height={80}
+  priority
+  className="w-[130px] h-auto sm:w-[160px] md:w-[200px]"
+/>
         </Link>
 
         {/* Navigation */}

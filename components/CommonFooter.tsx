@@ -48,7 +48,7 @@ export const CommonFooter = () => {
                   text-3xl
                   font-bold
                   tracking-wide
-                  text-gold-light
+                  text-[#D9B77A]
                 "
               >
                 Lifesiddhi
@@ -56,9 +56,9 @@ export const CommonFooter = () => {
 
               <p
                 className="
-                  -mt-1
-                  text-sm
-                  text-[#D9B77A]
+                  text-base
+          font-bold
+          text-[#D9B77A]
                 "
               >
                 Personal Guidance. Practical Remedies.
@@ -80,16 +80,16 @@ export const CommonFooter = () => {
             {/* Social Icons */}
             <div className="mt-6 flex items-center gap-3">
               <SocialIcon href="https://www.facebook.com/share/1GPzUsGss8/" label="Facebook">
-                <FaFacebook />
+                <FaFacebook className="text-[#D9B77A]" />
               </SocialIcon>
 
               <SocialIcon href="https://www.instagram.com/astroguru.ayush?igsi=MWJ1ejN6ZTRmOW5jYQ==" label="Instagram">
-                <FaInstagram />
+                <FaInstagram className="text-[#D9B77A]" />
                 
               </SocialIcon>
 
               <SocialIcon href="https://youtube.com/@astroguruayush?si=LSAs_OV9S4T4LrcH" label="YouTube">
-               <FaYoutube />
+               <FaYoutube className="text-[#D9B77A]" />
               </SocialIcon>
             </div>
           </div>
@@ -154,7 +154,7 @@ export const CommonFooter = () => {
               <Mail size={17} strokeWidth={1.8} />
 
               <span>
-                support@astroshubh.com
+                fininterestam581@gmail.com
               </span>
             </a>
           </div>

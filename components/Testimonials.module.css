@@ -1,0 +1,109 @@
+.viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  gap: 16px;
+  padding: 8px 4px;
+  animation: testimonialScroll 70s linear infinite;
+  will-change: transform;
+}
+
+.track:hover {
+  animation-play-state: paused;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 300px;
+  min-height: 330px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--background);
+  box-shadow: 0 8px 30px rgb(75 45 20 / 6%);
+}
+
+.leftFade,
+.rightFade {
+  position: absolute;
+  top: 0;
+  z-index: 10;
+  width: 50px;
+  height: 100%;
+  pointer-events: none;
+}
+
+.leftFade {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--background-soft),
+    transparent
+  );
+}
+
+.rightFade {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--background-soft),
+    transparent
+  );
+}
+
+@keyframes testimonialScroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 640px) {
+  .track {
+    gap: 24px;
+  }
+
+  .card {
+    width: 350px;
+    min-height: 350px;
+    padding: 24px;
+  }
+
+  .leftFade,
+  .rightFade {
+    width: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    width: 380px;
+  }
+
+  .leftFade,
+  .rightFade {
+    width: 120px;
+  }
+}
+
+@media (max-width: 640px) {
+  .track {
+    animation-duration: 55s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

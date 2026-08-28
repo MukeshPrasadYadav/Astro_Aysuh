@@ -1,6 +1,15 @@
 import Link from "next/link";
+import { ReactNode } from "react";
 
-export const FooterLink = ({ href, children }) => {
+interface FooterLinkProps {
+  href: string;
+  children: ReactNode;
+}
+
+export const FooterLink = ({
+  href,
+  children,
+}: FooterLinkProps) => {
   return (
     <Link
       href={href}
@@ -10,9 +19,8 @@ export const FooterLink = ({ href, children }) => {
         text-white/85
         transition-all
         duration-200
-
         hover:translate-x-1
-        hover:text-gold-light
+        hover:text-[#ff6000]
       "
     >
       {children}

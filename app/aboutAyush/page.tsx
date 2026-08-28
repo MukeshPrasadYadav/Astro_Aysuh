@@ -1,4 +1,9 @@
 import AboutAyushBanner from "@/components/AboutAyushBanner";
+import AstrologyInfoSection from "@/components/AstrologyInfoSection";
+import SpecialitySection from "@/components/SpecilitySection";
+import Testimonials from "@/components/Testimonials";
+
+
 
 const consultationAreas = [
   {
@@ -139,6 +144,9 @@ export default function AboutAyush() {
 
       {/* Banner */}
       <AboutAyushBanner />
+      <SpecialitySection />
+
+      <AstrologyInfoSection />
 
       {/* Why Consult */}
       <section className="mx-auto w-full max-w-6xl px-5 py-16 sm:px-8 md:py-20">
@@ -518,31 +526,27 @@ export default function AboutAyush() {
   </div>
 </section>
       {/* Testimonials */}
-      <section className="bg-primary/5">
-        <div className="mx-auto w-full max-w-5xl px-5 py-16 text-center sm:px-8 md:py-20">
+     <section className="bg-primary/5">
+  <div className="mx-auto w-full px-5 py-16 sm:px-8 md:py-20 lg:px-10 xl:px-14 2xl:px-20">
 
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-text-meta">
-            What Clients Say
-          </p>
+    <p className="mb-3 text-center text-sm font-semibold uppercase tracking-[0.2em] text-text-meta">
+      What Clients Say
+    </p>
 
-          <h2 className="text-3xl font-bold sm:text-4xl">
-            Real Experiences. Personal Journeys.
-          </h2>
+    <h2 className="text-center text-3xl font-bold sm:text-4xl">
+      Real Experiences. Personal Journeys.
+    </h2>
 
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-text/70 sm:text-lg">
-            Read how personalised consultations with Astrologer Ayush have
-            helped clients understand their situations and find greater
-            clarity.
-          </p>
+    <p className="mx-auto mt-5 max-w-2xl text-center text-base leading-8 text-text/70 sm:text-lg">
+      Read how personalised consultations with Astrologer Ayush have
+      helped clients understand their situations and find greater
+      clarity.
+    </p>
 
-          <div className="mt-10 rounded-2xl border border-dashed border-text/20 bg-background p-8">
-            <p className="text-sm text-text/60">
-              Genuine client testimonials will be displayed here.
-            </p>
-          </div>
+    <Testimonials />
 
-        </div>
-      </section>
+  </div>
+</section>
 
       {/* FAQ */}
       <section className="mx-auto w-full max-w-5xl px-5 py-16 sm:px-8 md:py-20">
@@ -602,7 +606,7 @@ export default function AboutAyush() {
   rel="noopener noreferrer"
   className="mt-8 inline-block rounded-xl bg-link-button px-7 py-3 font-semibold text-white shadow-lg transition hover:opacity-90"
 >
-  Book Your Personal Consultation →
+  Book Personal Consultation →
 </a>
 
           <p className="mt-8 text-xs leading-6 text-text/50">

@@ -45,7 +45,6 @@ export default function Auth() {
         router.push("/")
       }
 
-      console.log("Success:", data);
 
       // Example:
       // router.push("/profile");

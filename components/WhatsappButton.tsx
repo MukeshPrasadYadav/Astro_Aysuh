@@ -13,7 +13,7 @@ export default function WhatsAppButton() {
 
   const pathname = usePathname();
 
-  const hiddenPaths = ["/auth", "/admin"];
+  const hiddenPaths = ["/auth", "/admin",];
 
   if ( user?.role === "ADMIN"  || hiddenPaths.some((path) => pathname.startsWith(path))) {
     return null;

@@ -8,8 +8,7 @@ import Order from "@/models/Order";
 import mongoose from "mongoose";
 
 
-console.log("key id razor pay",process.env.RAZORPAY_KEY_ID)
-console.log("key secret razorpay",process.env.RAZORPAY_KEY_SECRET)
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
   key_secret: process.env.RAZORPAY_KEY_SECRET!,
@@ -26,10 +25,10 @@ export async function POST(req: NextRequest) {
 
 
     if(!bookId) {
-        throw new Error("No book found.");
+        return NextResponse.json({success : false, message : "Provide book id."},{status : 401});
     }
     if(!name || !number) {
-        throw new Error("User details not provided.")
+        return NextResponse.json({success : false, message : "User details not provided."},{status : 401});
     }
 
     // check user exist or not 
@@ -49,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const book = await Book.findOne({_id : bookId});
     if(!book || book === null){
-        throw new Error("No book found.");
+        return NextResponse.json({success : false, message : "No book found."},{status : 401});
     }
 
 
