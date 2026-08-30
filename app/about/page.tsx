@@ -8,7 +8,7 @@ export default function About() {
           About Us
         </h1>
 
-        {/* Intro */}
+        
         <p className="mb-8 text-base leading-7 md:text-lg md:leading-8">
           Welcome to <strong>LifeSiddhi!</strong> We are a team of professional
           astrologers dedicated to providing unique and insightful solutions to
