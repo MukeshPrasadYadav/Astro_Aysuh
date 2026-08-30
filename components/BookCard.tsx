@@ -23,8 +23,13 @@ export default function BookCard({ bookId }: BookCardProps) {
   const [data, setData] = useState<BookData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [showGuestForm, setShowGuestForm] = useState(false);
+const [guestName, setGuestName] = useState("");
+const [guestNumber, setGuestNumber] = useState("");
+const [creatingOrder, setCreatingOrder] = useState(false);
+
   const { user } = useUser();
-  const router = useRouter();
+  
 
   const isPayed = user?.books?.includes(bookId);
 
@@ -54,6 +59,145 @@ export default function BookCard({ bookId }: BookCardProps) {
 
     getBook();
   }, [bookId]);
+
+  const createOrder = async (name: string, number: string) => {
+  try {
+    setCreatingOrder(true);
+
+    if (!name || !number) {
+      alert("Please enter your name and mobile number.");
+      return;
+    }
+
+    if (!/^[6-9]\d{9}$/.test(number)) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    trackMetaEvent("AddToCart", {
+      content_name: data?.name || "Lal Kitab",
+      value: data?.price || 0,
+      currency: "INR",
+    });
+
+    const response = await fetch("/api/razorpay/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        bookId,
+        name,
+        number,
+      }),
+    });
+
+    const orderData = await response.json();
+
+    if (!response.ok || !orderData.success) {
+      alert(orderData.message || "Unable to create order");
+      return;
+    }
+
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+
+      amount: orderData.amount,
+      currency: orderData.currency,
+
+      name: "LifeSiddhi",
+      description: data?.name || "Lal Kitab Remedies",
+
+      order_id: orderData.orderId,
+
+      prefill: {
+        name,
+        contact: number,
+      },
+
+      theme: {
+        color: "#e87524",
+      },
+
+      handler: async function (paymentResponse: any) {
+        try {
+          const res = await fetch("/api/razorpay/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              razorpay_payment_id:
+                paymentResponse.razorpay_payment_id,
+
+              razorpay_order_id:
+                paymentResponse.razorpay_order_id,
+
+              razorpay_signature:
+                paymentResponse.razorpay_signature,
+            }),
+          });
+
+          const result = await res.json();
+
+          if (!res.ok || !result.success) {
+            alert(
+              result.message ||
+                "Payment verification failed"
+            );
+            return;
+          }
+
+          trackMetaEvent("Purchase", {
+            value: data?.price || 0,
+            currency: "INR",
+            content_name: data?.name || "Lal Kitab",
+            content_type: "product",
+          });
+
+          window.location.reload();
+
+        } catch (error) {
+          console.error(
+            "Payment verification error:",
+            error
+          );
+
+          alert(
+            "Payment verification failed. Please contact support."
+          );
+        }
+      },
+
+      modal: {
+        ondismiss: function () {},
+      },
+    };
+
+    if (!window.Razorpay) {
+      alert(
+        "Payment system is still loading. Please try again."
+      );
+      return;
+    }
+
+    const razorpay = new window.Razorpay(options);
+
+    razorpay.open();
+
+    // Close guest form after Razorpay opens
+    setShowGuestForm(false);
+
+  } catch (error) {
+    console.error("Payment error:", error);
+
+    alert(
+      "Something went wrong. Please try again."
+    );
+  } finally {
+    setCreatingOrder(false);
+  }
+};
 
   // Download book
   const downloadBook = async () => {
@@ -98,146 +242,14 @@ export default function BookCard({ bookId }: BookCardProps) {
   // Payment
   const payNow = useCallback(async () => {
     if (!user) {
-      router.push("/auth");
-      return;
+      setShowGuestForm(true);
+    return;
     }
+     await createOrder(user.name, user.number);
 
-    try {
-
-      trackMetaEvent("AddToCart", {
-  content_name: "Lal Kitab",
-  value: 99,
-  currency: "INR",
-});
-  
-      // 1. Create order on server
-      const response = await fetch("/api/razorpay/create-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          bookId: bookId,
-          name: user.name,
-          number: user.number,
-        }),
-      });
-
-      const orderData = await response.json();
-
-      if (!response.ok || !orderData.success) {
-        console.error(orderData.message);
-
-        alert(
-          orderData.message || "Unable to create order"
-        );
-
-        return;
-      }
-
-      // 2. Razorpay Checkout
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-
-        amount: orderData.amount,
-
-        currency: orderData.currency,
-
-        name: "LifeSiddhi",
-
-        description: "Lal Kitab Remedies",
-
-        order_id: orderData.orderId,
-
-        prefill: {
-          name: user.name,
-          contact: user.number,
-        },
-
-        theme: {
-          color: "#e87524",
-        },
-
-        // 3. Payment successful
-        handler: async function (paymentResponse: any) {
-          try {
-            const res = await fetch("/api/razorpay/verify", {
-              method: "POST",
-
-              headers: {
-                "Content-Type": "application/json",
-              },
-
-              body: JSON.stringify({
-                razorpay_payment_id:
-                  paymentResponse.razorpay_payment_id,
-
-                razorpay_order_id:
-                  paymentResponse.razorpay_order_id,
-
-                razorpay_signature:
-                  paymentResponse.razorpay_signature,
-              }),
-            });
-
-            const result = await res.json();
-
-            if (!res.ok || !result.success) {
-              alert(
-                result.message ||
-                  "Payment verification failed"
-              );
-
-              return;
-            }
-
-            if(res.ok){
-               trackMetaEvent("Purchase", {
-    value: 99,
-    currency: "INR",
-    content_name: "Lal Kitab",
-    content_type: "product",
-  });
-            }
-            window.location.reload();
-          } catch (error) {
-            console.error(
-              "Payment verification error:",
-              error
-            );
-
-            alert(
-              "Payment verification failed. Please contact support."
-            );
-          }
-        },
-
-        modal: {
-          ondismiss: function () {
-          },
-        },
-      };
-
-      // Make sure Razorpay is loaded
-      if (!window.Razorpay) {
-        alert(
-          "Payment system is still loading. Please try again."
-        );
-
-        return;
-      }
-
-      const razorpay = new window.Razorpay(options);
-
-      razorpay.open();
-    } catch (error) {
-      console.error("Payment error:", error);
-
-      alert(
-        "Something went wrong. Please try again."
-      );
-    }
-  }, [bookId, user, router]);
+    
+    
+  }, [bookId]);
 
   // Loading state
   if (loading) {
@@ -512,6 +524,84 @@ export default function BookCard({ bookId }: BookCardProps) {
 
       </div>
     </div>
+    {showGuestForm && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4">
+    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+
+      <div className="mb-5">
+        <h2 className="text-xl text-center font-bold text-gray-900">
+          Enter details to Buy. 
+        </h2>
+
+        
+      </div>
+
+      <div className="space-y-4">
+
+        {/* Name */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Name
+          </label>
+
+          <input
+            type="text"
+            value={guestName}
+            onChange={(e) => setGuestName(e.target.value)}
+            placeholder="Enter your name"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-primary"
+          />
+        </div>
+
+        {/* Number */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            Mobile Number
+          </label>
+
+          <input
+            type="tel"
+            inputMode="numeric"
+            maxLength={10}
+            value={guestNumber}
+            onChange={(e) =>
+              setGuestNumber(
+                e.target.value.replace(/\D/g, "")
+              )
+            }
+            placeholder="10-digit mobile number"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-primary"
+          />
+        </div>
+
+      </div>
+
+      <div className="mt-6 flex gap-3">
+
+        <button
+          type="button"
+          onClick={() => setShowGuestForm(false)}
+          className="flex-1 rounded-xl border border-gray-300 px-4 py-3 font-semibold text-gray-700"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          disabled={creatingOrder}
+          onClick={() =>
+            createOrder(guestName.trim(), guestNumber)
+          }
+          className="flex-1 rounded-xl bg-text-meta px-4 py-3 font-semibold text-white disabled:opacity-50"
+        >
+          {creatingOrder ? "Please wait..." : "Buy Lal Kitab"}
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+)}
   </section>
 );
 }

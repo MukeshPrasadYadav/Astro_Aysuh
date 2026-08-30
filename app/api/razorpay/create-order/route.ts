@@ -38,13 +38,16 @@ export async function POST(req: NextRequest) {
         let hashedPassword = await bcrypt.hash(number , 10);
         user = await User.create({name,number,password : hashedPassword})
 
-          const sessionId = crypto.randomUUID();
+    }
+    const sessionId = crypto.randomUUID();
             await Session.create({
               sessionId,
               userId: user._id,
               expiresAt: new Date(Date.now() + 1 * 24 * 60 * 30 * 1000),
             });
-    }
+
+
+   
 
     const book = await Book.findOne({_id : bookId});
     if(!book || book === null){
@@ -72,12 +75,22 @@ export async function POST(req: NextRequest) {
   }
 );
 
-    return NextResponse.json({
+const response = NextResponse.json({
       success: true,
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
     });
+
+    response.cookies.set("sessionId", sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 1 * 60 * 24 * 30,
+    });
+
+    return response;
   } catch (error: any) {
     console.error("Razorpay Create Order Error:", error);
 
