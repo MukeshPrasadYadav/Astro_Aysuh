@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft, Home, Sparkles } from "lucide-react";
 
+
+
 export default function NotFound() {
   return (
     <main className="relative flex min-h-[calc(100dvh-80px)] items-center justify-center overflow-hidden bg-primary/5 px-6 py-20">
