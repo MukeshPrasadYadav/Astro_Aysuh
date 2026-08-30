@@ -5,6 +5,7 @@ import Image from "next/image";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
+import { trackMetaEvent } from "@/lib/meta-pixel";
 
 export interface BookCardProps {
   bookId: string;
@@ -102,6 +103,13 @@ export default function BookCard({ bookId }: BookCardProps) {
     }
 
     try {
+
+      trackMetaEvent("AddToCart", {
+  content_name: "Lal Kitab",
+  value: 99,
+  currency: "INR",
+});
+  
       // 1. Create order on server
       const response = await fetch("/api/razorpay/create-order", {
         method: "POST",
@@ -183,8 +191,14 @@ export default function BookCard({ bookId }: BookCardProps) {
               return;
             }
 
-            // Payment verified successfully
-            // Reload page so UserContext gets updated
+            if(res.ok){
+               trackMetaEvent("Purchase", {
+    value: 99,
+    currency: "INR",
+    content_name: "Lal Kitab",
+    content_type: "product",
+  });
+            }
             window.location.reload();
           } catch (error) {
             console.error(
