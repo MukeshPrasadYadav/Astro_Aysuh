@@ -100,7 +100,7 @@ const [creatingOrder, setCreatingOrder] = useState(false);
     }
 
     const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      key: process.env.RAZORPAY_KEY_ID,
 
       amount: orderData.amount,
       currency: orderData.currency,
