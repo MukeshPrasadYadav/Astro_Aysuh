@@ -10,7 +10,7 @@ export default function About() {
 
         {/* Intro */}
         <p className="mb-8 text-base leading-7 md:text-lg md:leading-8">
-          Welcome to <strong>AstroAyush!</strong> We are a team of professional
+          Welcome to <strong>LifeSiddhi!</strong> We are a team of professional
           astrologers dedicated to providing unique and insightful solutions to
           your questions. Our consultants use ancient Vedic principles combined
           with modern expertise to guide you through life's challenges.

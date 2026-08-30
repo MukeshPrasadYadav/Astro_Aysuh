@@ -37,7 +37,7 @@ export default function Auth() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
+        alert(data.message || "Something went wrong");
       }
       if(response.ok){
 
