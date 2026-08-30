@@ -119,6 +119,7 @@ const [creatingOrder, setCreatingOrder] = useState(false);
         color: "#e87524",
       },
 
+
       handler: async function (paymentResponse: any) {
         try {
           const res = await fetch("/api/razorpay/verify", {
@@ -142,9 +143,8 @@ const [creatingOrder, setCreatingOrder] = useState(false);
 
           if (!res.ok || !result.success) {
             alert(
-              result.message ||
-                "Payment verification failed"
-            );
+  "Payment successful! If your book is not available for download, please log out, log in again, and open your Profile."
+);
             return;
           }
 

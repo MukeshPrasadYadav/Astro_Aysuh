@@ -38,22 +38,7 @@ export default function ProfilePage() {
   );
   const[order,setOrder] = useState<Iorder []>([]);
 
-  const orders = [
-    {
-      id: "ORD-1001",
-      product: "Lal Kitab Remedies",
-      date: "22 Aug 2026",
-      amount: "₹499",
-      status: "Completed",
-    },
-    {
-      id: "ORD-1002",
-      product: "Vedic Astrology Guide",
-      date: "18 Aug 2026",
-      amount: "₹299",
-      status: "Completed",
-    },
-  ];
+
 
   const data = useUser();
 
@@ -71,19 +56,59 @@ export default function ProfilePage() {
         }
       });
 
+      if(res.ok){
+        const { data } = await res.json();
+        setOrder(data);
+
+         const paymentRes = await fetch("/api/razorpay/recheckPayment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user.id,
+        },
+      });
+
+      if (!paymentRes.ok) {
+        console.error("Payment reconciliation failed");
+        return;
+      }
+
+      const paymentResult = await paymentRes.json();
+
+      const updatedProfileRes = await fetch("/api/profile", {
+          method: "GET",
+          headers: {
+            "x-user-id": user.id,
+          },
+        });
+
+        if (updatedProfileRes.ok) {
+          const updatedProfileData = await updatedProfileRes.json();
+          setOrder(updatedProfileData.data);
+        }
+      
+      
+
+      
+
+      }
+
       if (!res.ok) {
           throw new Error("Failed to fetch admin stats");
         }
 
-        const { data } = await res.json();
-        setOrder(data);
+        
 
 
     }
+     
 
     getData()
+    
 
   },[user])
+
+ 
 
   if (data.loading) {
     return (
@@ -183,6 +208,8 @@ export default function ProfilePage() {
                 {order.map((order) => (
                   <div
                     key={order._id}
+
+                    
                     className="flex flex-col gap-4 rounded-lg border border-border-light bg-surface-warm p-4 transition-colors hover:bg-surface-hover sm:flex-row sm:items-center sm:justify-between"
                   >
                     {/* Left */}
