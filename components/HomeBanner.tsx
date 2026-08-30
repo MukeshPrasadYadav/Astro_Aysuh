@@ -55,7 +55,7 @@ export default function HomeBanner() {
               
               {/* Spinning Chakra */}
               <Image
-      src="/chakra.svg"
+      src="/Chakra.svg"
       alt=""
       fill
       className="
