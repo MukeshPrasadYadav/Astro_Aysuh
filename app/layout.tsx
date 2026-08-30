@@ -15,8 +15,8 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Astro Ayush",
-    template: "%s | Astro Ayush",
+    default: "LifeSiddhi",
+    template: "%s | LifeSiddhi",
   },
   description:
     "Ancient wisdom, modern guidance. Explore Astro Ayush.",
