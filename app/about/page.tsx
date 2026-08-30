@@ -3,7 +3,7 @@ export default function About() {
     <div className="min-h-screen bg-background text-text">
       <main className="mx-auto w-full max-w-5xl px-6 py-12 md:px-8 lg:py-16">
         
-        {/* Heading */}
+        
         <h1 className="mb-6 text-3xl font-bold md:text-4xl">
           About Us
         </h1>
